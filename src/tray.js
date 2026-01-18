@@ -1,41 +1,28 @@
 const { Tray, Menu, MenuItem } = require("electron");
 const path = require("path");
 
-function createTrayIconFor(window, app) {
+/**
+ *
+ * @param {Array<{label: string; click: () => void} | "separator">} menuItems
+ * @returns
+ */
+function createTrayIcons(menuItems = []) {
   const tray = new Tray(path.join(__dirname, "../assets/512x512.png"));
 
-  const showWindowMenuItem = new MenuItem({
-    label: "Show Window",
-    click: () => {
-      if (window) {
-        if (window.isVisible()) {
-          window.focus();
-        } else {
-          window.show();
-        }
-      }
-    },
+  const menuItemTemplate = [...menuItems].map((item) => {
+    if (item === "separator") {
+      return {
+        type: "separator",
+      };
+    }
+    return new MenuItem(item);
   });
 
-  const quitAppMenuItem = new MenuItem({
-    label: "Quit",
-    click: () => {
-      if (window) {
-        window.destroy();
-      }
-      app.quit();
-    },
-  });
-
-  const contextMenu = Menu.buildFromTemplate([
-    showWindowMenuItem,
-    { type: "separator" },
-    quitAppMenuItem,
-  ]);
+  const contextMenu = Menu.buildFromTemplate(menuItemTemplate);
 
   tray.setContextMenu(contextMenu);
 
   return tray;
 }
 
-module.exports = { createTrayIconFor };
+module.exports = { createTrayIcons };

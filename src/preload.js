@@ -1,4 +1,7 @@
 const { contextBridge, ipcRenderer, Notification } = require("electron");
+
+const observers = [];
+
 window.addEventListener("DOMContentLoaded", () => {
   const OriginalNotification = window.Notification;
 
@@ -43,9 +46,10 @@ window.addEventListener("DOMContentLoaded", () => {
       subtree: true,
       childList: true,
     });
+    observers.push(observer);
   } else {
     console.warn(
-      "Title element not found directly, observing head for title changes. Initial count might be delayed."
+      "Title element not found directly, observing head for title changes. Initial count might be delayed.",
     );
     const observer = new MutationObserver(sendBadgeCount);
     observer.observe(document.head, {
@@ -53,6 +57,7 @@ window.addEventListener("DOMContentLoaded", () => {
       subtree: true,
       characterData: true,
     });
+    observers.push(observer);
   }
   contextBridge.exposeInMainWorld("whatsappApi", {
     triggerInitialBadgeUpdate: () => {

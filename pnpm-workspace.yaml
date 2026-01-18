@@ -1,0 +1,8 @@
+packages:
+  - "."
+
+ignoredBuiltDependencies:
+  - electron-winstaller
+
+onlyBuiltDependencies:
+  - electron

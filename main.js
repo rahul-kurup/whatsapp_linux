@@ -1,8 +1,7 @@
 const { app, BrowserWindow, ipcMain } = require("electron");
 const { loadWhatsApp, sendNotification } = require("./src/window");
-const { createTrayIconFor } = require("./src/tray");
+const { createTrayIcons } = require("./src/tray");
 const { clearServiceWorkers } = require("./src/session");
-const path = require("path");
 const AutoLaunch = require("auto-launch");
 
 let mainWindowInstance;
@@ -13,6 +12,7 @@ const isFirstInstance = app.requestSingleInstanceLock();
 app.disableHardwareAcceleration();
 
 if (!isFirstInstance) {
+  console.logggg("tried triggering multiple instances, quitting.");
   app.quit();
   return;
 }
@@ -22,25 +22,39 @@ app.on("second-instance", () => {
     if (mainWindowInstance.isMinimized()) {
       mainWindowInstance.restore();
     }
-    mainWindowInstance.show();
-    mainWindowInstance.focus();
+    showApp();
   }
 });
+
+async function showApp() {
+  const waWindow = await Promise.resolve(mainWindowInstance);
+  waWindow?.show();
+  waWindow?.focus();
+}
+
+async function quitApp() {
+  const waWindow = await Promise.resolve(mainWindowInstance);
+  tray.destroy();
+  waWindow?.destroy();
+  app.quit();
+}
 
 const createAndLoadMainWindow = () => {
   const shouldStartHidden = process.argv.includes("--hidden");
 
   mainWindowInstance = loadWhatsApp({ show: !shouldStartHidden });
-  tray = createTrayIconFor(mainWindowInstance, app);
+  tray = createTrayIcons([
+    { label: "Show", click: showApp },
+    "separator",
+    { label: "Quit", click: quitApp },
+  ]);
 };
 
 app.whenReady().then(() => {
   createAndLoadMainWindow();
 
-  const yourAppName = "WhatsappDesktop";
-
   const autoLauncher = new AutoLaunch({
-    name: yourAppName,
+    name: "WhatsApp",
     path: app.getPath("exe"),
     isHidden: true,
   });
@@ -65,8 +79,7 @@ app.whenReady().then(() => {
       if (mainWindowInstance.isMinimized()) {
         mainWindowInstance.restore();
       }
-      mainWindowInstance.show();
-      mainWindowInstance.focus();
+      showApp();
     }
   });
 });
@@ -83,7 +96,7 @@ ipcMain.on(
   "whatsapp-notification-from-renderer",
   (event, { title, body, icon }) => {
     sendNotification(title, body, icon);
-  }
+  },
 );
 
 ipcMain.on("update-badge-count", (event, count) => {

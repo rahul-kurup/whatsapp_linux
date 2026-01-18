@@ -1,6 +1,6 @@
 {
-  "appId": "com.uvindusl.whatsappLinux",
-  "productName": "unofficial-whatsapp",
+  "appId": "com.electron.whatsapp_linux",
+  "productName": "WhatsApp",
   "icon": "assets/512x512.png",
   "files": [
     "main.js",
@@ -14,7 +14,7 @@
     "!*.snap"
   ],
   "linux": {
-    "target": ["dir" , "deb"],
+    "target": ["AppImage", "deb", "rpm", "tar.gz"],
     "icon": "assets/512x512.png",
     "category": "Network",
     "executableName": "whatsapp"

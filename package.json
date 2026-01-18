@@ -1,17 +1,17 @@
 {
-  "name": "unofficial-whatsapp",
-  "version": "1.1.0-stable",
-  "description": "Whatsapp app for linux",
+  "name": "whatsapp",
+  "version": "0.0.1",
+  "description": "Whatsapp Web wrapper for linux",
   "main": "main.js",
   "scripts": {
-    "start": "electron .",
-    "build": "electron-builder --linux dir",
-    "snap": "snapcraft",
+    "dev": "pnpm run build:dev && electron .",
+    "build:dev": "electron-builder --linux dir",
+    "build": "electron-builder --linux",
     "dist": "electron-builder"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/uvindusl/Whatsapp-for-linux.git"
+    "url": "git+https://github.com/rahul-kurup/whatsapp_linux.git"
   },
   "keywords": [
     "Whatsapp",
@@ -19,17 +19,17 @@
     "Meta"
   ],
   "author": {
-    "name": "Uvindu Sankalpa",
-    "email": "uvindusankalpa2021@gmail.com"
+    "name": "rahul kurup",
+    "email": "rahul.kurup@hotmail.com"
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/uvindusl/Whatsapp-for-linux/issues"
+    "url": "https://github.com/rahul-kurup/whatsapp_linux/issues"
   },
-  "homepage": "https://github.com/uvindusl/Whatsapp-for-linux#readme",
+  "homepage": "https://github.com/rahul-kurup/whatsapp_linux#readme",
   "devDependencies": {
-    "electron": "^39.1.2",
-    "electron-builder": "^26.0.12"
+    "electron": "^40.0.0",
+    "electron-builder": "^26.4.0"
   },
   "dependencies": {
     "auto-launch": "^5.0.6"

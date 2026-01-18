@@ -1,58 +1,63 @@
 const { BrowserWindow, shell, Notification } = require("electron");
 const path = require("path");
-
-const userAgent =
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36";
+const { getUserAgent } = require("./userAgent");
 
 let mainWindow;
 
-function loadWhatsApp(options = {}) {
+async function loadWhatsApp(options = {}) {
   const { show = true } = options;
 
-  mainWindow = new BrowserWindow({
-    width: 1024,
-    height: 768,
+  const whatsappWindow = new BrowserWindow({
+    show,
+    width: 1100,
+    height: 800,
+    center: true,
+    hasShadow: true,
+    autoHideMenuBar: true,
     icon: path.join(__dirname, "../assets/512x512.png"),
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
       nodeIntegration: false,
     },
-    show: show,
   });
 
-  mainWindow.setMenuBarVisibility(false);
+  whatsappWindow.setTitle("WhatsApp");
 
-  mainWindow.webContents.once("did-finish-load", () => {
+  whatsappWindow.webContents.once("did-finish-load", () => {
     console.log(
-      "Main window finished loading web content. Triggering initial badge update."
+      "Main window finished loading web content. Triggering initial badge update.",
     );
-    mainWindow.webContents
+    whatsappWindow.webContents
       .executeJavaScript("window.whatsappApi.triggerInitialBadgeUpdate();")
       .catch((error) =>
-        console.error("Error triggering initial badge update:", error)
+        console.error("Error triggering initial badge update:", error),
       );
 
     checkNotificationPermission();
-    setupExternalLinkHandling(mainWindow.webContents);
+    setupExternalLinkHandling(whatsappWindow.webContents);
   });
 
-  mainWindow.on("close", (event) => {
+  whatsappWindow.on("close", (event) => {
     event.preventDefault();
-    mainWindow.hide();
+    whatsappWindow.hide();
     console.log("Window 'close' event: Window hidden.");
   });
 
-  mainWindow.on("closed", () => {
+  whatsappWindow.on("closed", () => {
     mainWindow = null;
     console.log(
-      "Window 'closed' event: Window instance destroyed and set to null."
+      "Window 'closed' event: Window instance destroyed and set to null.",
     );
   });
 
-  mainWindow.loadURL("https://web.whatsapp.com/", { userAgent });
+  const userAgent = await getUserAgent();
 
-  return mainWindow;
+  whatsappWindow.loadURL("https://web.whatsapp.com/", { userAgent });
+
+  mainWindow = whatsappWindow;
+
+  return whatsappWindow;
 }
 
 function setupExternalLinkHandling(webContents) {
@@ -102,7 +107,7 @@ function sendNotification(title, body, iconPath) {
         mainWindow.focus();
       } else {
         console.log(
-          "Notification clicked, but main window was closed. Cannot show."
+          "Notification clicked, but main window was closed. Cannot show.",
         );
       }
     });
