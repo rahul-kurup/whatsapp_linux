@@ -6,7 +6,7 @@ const path = require("path");
  * @param {Array<{label: string; click: () => void} | "separator">} menuItems
  * @returns
  */
-function createTrayIcons(menuItems = []) {
+function createTray(menuItems = []) {
   const tray = new Tray(path.join(__dirname, "../assets/512x512.png"));
 
   const menuItemTemplate = [...menuItems].map((item) => {
@@ -25,4 +25,4 @@ function createTrayIcons(menuItems = []) {
   return tray;
 }
 
-module.exports = { createTrayIcons };
+module.exports = { createTray };

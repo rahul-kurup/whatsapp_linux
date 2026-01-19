@@ -1,6 +1,6 @@
 {
   "name": "whatsapp",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Whatsapp Web wrapper for linux",
   "main": "main.js",
   "scripts": {

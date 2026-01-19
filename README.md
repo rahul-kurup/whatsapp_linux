@@ -4,7 +4,7 @@ A minimal WhatsApp Web wrapper for Linux, since no native client is available.
 
 ## Credits
 
-- Major codebase: https://github.com/uvindusl/Whatsapp-for-linux (forked)
+- Forked codebase: https://github.com/uvindusl/Whatsapp-for-linux
 - Useragent Feed: https://jnrbsn.github.io/user-agents/user-agents.json
 
 ## Project Setup

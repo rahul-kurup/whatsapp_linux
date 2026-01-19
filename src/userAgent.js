@@ -72,6 +72,7 @@ async function fetchLatestLinuxChromeUA() {
   return picked;
 }
 
+/** @returns {string} */
 async function getUserAgent() {
   const cacheFile = join(app.getPath("userData"), "ua-cache.json");
   const cached = await readCache(cacheFile);

@@ -1,10 +1,13 @@
 const { app, BrowserWindow, ipcMain } = require("electron");
 const { loadWhatsApp, sendNotification } = require("./src/window");
-const { createTrayIcons } = require("./src/tray");
+const { createTray } = require("./src/tray");
 const { clearServiceWorkers } = require("./src/session");
 const AutoLaunch = require("auto-launch");
 
-let mainWindowInstance;
+/** @type{BrowserWindow} */
+let whatsappInstance;
+
+/** @type{Electron.Tray} */
 let tray;
 
 const isFirstInstance = app.requestSingleInstanceLock();
@@ -12,29 +15,42 @@ const isFirstInstance = app.requestSingleInstanceLock();
 app.disableHardwareAcceleration();
 
 if (!isFirstInstance) {
-  console.logggg("tried triggering multiple instances, quitting.");
-  app.quit();
+  console.log("tried triggering multiple instances, quitting.");
+  quitApp();
   return;
 }
 
 app.on("second-instance", () => {
-  if (mainWindowInstance) {
-    if (mainWindowInstance.isMinimized()) {
-      mainWindowInstance.restore();
+  if (whatsappInstance) {
+    if (whatsappInstance.isMinimized()) {
+      whatsappInstance.restore();
     }
     showApp();
   }
 });
 
 async function showApp() {
-  const waWindow = await Promise.resolve(mainWindowInstance);
-  waWindow?.show();
-  waWindow?.focus();
+  const waWindow = await Promise.resolve(whatsappInstance);
+  if (waWindow) {
+    waWindow.show();
+    waWindow.focus();
+  }
+}
+
+async function toggleAppVisibility() {
+  const waWindow = await Promise.resolve(whatsappInstance);
+  if (waWindow) {
+    if (waWindow.isVisible()) {
+      waWindow.hide();
+    } else {
+      showApp();
+    }
+  }
 }
 
 async function quitApp() {
-  const waWindow = await Promise.resolve(mainWindowInstance);
-  tray.destroy();
+  const waWindow = await Promise.resolve(whatsappInstance);
+  tray?.destroy();
   waWindow?.destroy();
   app.quit();
 }
@@ -42,12 +58,14 @@ async function quitApp() {
 const createAndLoadMainWindow = () => {
   const shouldStartHidden = process.argv.includes("--hidden");
 
-  mainWindowInstance = loadWhatsApp({ show: !shouldStartHidden });
-  tray = createTrayIcons([
+  whatsappInstance = loadWhatsApp({ show: !shouldStartHidden });
+  tray = createTray([
     { label: "Show", click: showApp },
     "separator",
     { label: "Quit", click: quitApp },
   ]);
+
+  tray.on("click", toggleAppVisibility);
 };
 
 app.whenReady().then(() => {
@@ -73,11 +91,11 @@ app.whenReady().then(() => {
   });
 
   app.on("activate", () => {
-    if (BrowserWindow.getAllWindows().length === 0 && !mainWindowInstance) {
+    if (BrowserWindow.getAllWindows().length === 0 && !whatsappInstance) {
       createAndLoadMainWindow();
-    } else if (mainWindowInstance) {
-      if (mainWindowInstance.isMinimized()) {
-        mainWindowInstance.restore();
+    } else if (whatsappInstance) {
+      if (whatsappInstance.isMinimized()) {
+        whatsappInstance.restore();
       }
       showApp();
     }
@@ -88,7 +106,7 @@ app.on("before-quit", clearServiceWorkers);
 
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
-    app.quit();
+    quitApp();
   }
 });
 
@@ -105,7 +123,7 @@ ipcMain.on("update-badge-count", (event, count) => {
     if (
       process.platform === "darwin" &&
       count > 0 &&
-      !mainWindowInstance.isFocused()
+      !whatsappInstance.isFocused()
     ) {
       app.dock.bounce("informational");
     }

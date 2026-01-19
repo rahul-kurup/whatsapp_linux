@@ -2,12 +2,11 @@ const { BrowserWindow, shell, Notification } = require("electron");
 const path = require("path");
 const { getUserAgent } = require("./userAgent");
 
-let mainWindow;
+/** @type{BrowserWindow} */
+let whatsappWindow;
 
-async function loadWhatsApp(options = {}) {
-  const { show = true } = options;
-
-  const whatsappWindow = new BrowserWindow({
+async function loadWhatsApp({ show = true }) {
+  whatsappWindow = new BrowserWindow({
     show,
     width: 1100,
     height: 800,
@@ -45,7 +44,7 @@ async function loadWhatsApp(options = {}) {
   });
 
   whatsappWindow.on("closed", () => {
-    mainWindow = null;
+    whatsappWindow = null;
     console.log(
       "Window 'closed' event: Window instance destroyed and set to null.",
     );
@@ -54,8 +53,6 @@ async function loadWhatsApp(options = {}) {
   const userAgent = await getUserAgent();
 
   whatsappWindow.loadURL("https://web.whatsapp.com/", { userAgent });
-
-  mainWindow = whatsappWindow;
 
   return whatsappWindow;
 }
@@ -99,12 +96,12 @@ function sendNotification(title, body, iconPath) {
     const notification = new Notification(notificationOptions);
 
     notification.on("click", () => {
-      if (mainWindow) {
-        if (mainWindow.isMinimized()) {
-          mainWindow.restore();
+      if (whatsappWindow) {
+        if (whatsappWindow.isMinimized()) {
+          whatsappWindow.restore();
         }
-        mainWindow.show();
-        mainWindow.focus();
+        whatsappWindow.show();
+        whatsappWindow.focus();
       } else {
         console.log(
           "Notification clicked, but main window was closed. Cannot show.",
