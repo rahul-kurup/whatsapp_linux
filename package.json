@@ -2,12 +2,23 @@
   "name": "whatsapp",
   "version": "0.0.3",
   "description": "Whatsapp Web wrapper for linux",
-  "main": "main.js",
+  "main": "dist/main/index.js",
   "scripts": {
-    "dev": "pnpm run build:dev && electron .",
-    "build:dev": "electron-builder --linux dir",
-    "build": "electron-builder --linux",
-    "dist": "electron-builder"
+    "dev": "concurrently -n \"type,electron\" -c \"blue,green\" \"npm run watch:ts\" \"npm run watch:electron\"",
+    "watch:ts": "tsc --watch",
+    "watch:electron": "nodemon",
+    "build": "npm run clean && tsc && npm run clean:maps && electron-builder --linux",
+    "build:dev": "npm run clean:release && tsc && npm run clean:maps && electron-builder --linux dir",
+    "dist": "npm run clean:release && tsc && npm run clean:maps && electron-builder",
+    "start": "tsc && electron dist/main",
+    "type-check": "tsc --noEmit",
+    "clean": "rm -rf dist release",
+    "clean:release": "rm -rf release",
+    "clean:maps": "find dist -type f \\( -name '*.map' -o -name '*.d.ts' -o -name '*.d.ts.map' \\) -delete",
+    "lint": "eslint . --ext .ts,.tsx",
+    "lint:fix": "eslint . --ext .ts,.tsx --fix",
+    "format": "prettier --write \"src/**/*.{ts,tsx,json}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,json}\""
   },
   "repository": {
     "type": "git",
@@ -28,8 +39,19 @@
   },
   "homepage": "https://github.com/rahul-kurup/whatsapp_linux#readme",
   "devDependencies": {
-    "electron": "^40.0.0",
-    "electron-builder": "^26.4.0"
+    "@types/auto-launch": "^5.0.5",
+    "@types/node": "^22.10.5",
+    "@typescript-eslint/eslint-plugin": "^8.20.0",
+    "@typescript-eslint/parser": "^8.20.0",
+    "concurrently": "^9.1.2",
+    "electron": "^34.0.0",
+    "electron-builder": "^26.4.0",
+    "eslint": "^9.18.0",
+    "eslint-config-prettier": "^10.0.1",
+    "eslint-plugin-prettier": "^5.2.2",
+    "nodemon": "^3.1.9",
+    "prettier": "^3.4.2",
+    "typescript": "^5.7.3"
   },
   "dependencies": {
     "auto-launch": "^5.0.6"

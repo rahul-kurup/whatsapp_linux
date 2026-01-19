@@ -1,21 +1,27 @@
 {
   "appId": "com.electron.whatsapp_linux",
   "productName": "WhatsApp",
-  "icon": "assets/512x512.png",
+  "icon": "assets/logo.png",
+  "directories": {
+    "output": "release"
+  },
   "files": [
-    "main.js",
-    "src/**/*",
+    "dist/**/*.js",
     "assets/**/*",
     "package.json",
-    "!snap",
-    "!parts",
-    "!stage",
-    "!prime",
-    "!*.snap"
+    "!src/**/*.ts",
+    "!tsconfig.json",
+    "!*.md",
+    "!.vscode",
+    "!.zed",
+    "!.prettierrc.json",
+    "!.prettierignore",
+    "!eslint.config.mjs",
+    "!nodemon.json"
   ],
   "linux": {
     "target": ["AppImage", "deb", "rpm", "tar.gz"],
-    "icon": "assets/512x512.png",
+    "icon": "assets/logo.png",
     "category": "Network",
     "executableName": "whatsapp"
   }
