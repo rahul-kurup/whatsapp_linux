@@ -29,36 +29,33 @@ app.on("second-instance", () => {
   }
 });
 
-async function showApp() {
-  const waWindow = await Promise.resolve(whatsappInstance);
-  if (waWindow) {
-    waWindow.show();
-    waWindow.focus();
+function showApp() {
+  if (whatsappInstance) {
+    whatsappInstance.show();
+    whatsappInstance.focus();
   }
 }
 
-async function toggleAppVisibility() {
-  const waWindow = await Promise.resolve(whatsappInstance);
-  if (waWindow) {
-    if (waWindow.isVisible()) {
-      waWindow.hide();
+function toggleAppVisibility() {
+  if (whatsappInstance) {
+    if (whatsappInstance.isVisible()) {
+      whatsappInstance.hide();
     } else {
       showApp();
     }
   }
 }
 
-async function quitApp() {
-  const waWindow = await Promise.resolve(whatsappInstance);
+function quitApp() {
   tray?.destroy();
-  waWindow?.destroy();
+  whatsappInstance?.destroy();
   app.quit();
 }
 
-const createAndLoadMainWindow = () => {
+const createAndLoadMainWindow = async () => {
   const shouldStartHidden = process.argv.includes("--hidden");
 
-  whatsappInstance = loadWhatsApp({ show: !shouldStartHidden });
+  whatsappInstance = await loadWhatsApp({ show: !shouldStartHidden });
   tray = createTray([
     { label: "Show", click: showApp },
     "separator",
