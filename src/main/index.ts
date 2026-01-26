@@ -1,6 +1,5 @@
-import AutoLaunch from 'auto-launch';
 import { app, BrowserWindow, ipcMain, IpcMainEvent } from 'electron';
-import { APP_TITLE, PRELOAD } from '../constants';
+import { PRELOAD } from '../constants';
 import { NotificationData } from '../types/events';
 import { clearServiceWorkers } from './session';
 import { WhatsappTray } from './tray';
@@ -68,26 +67,6 @@ async function createAndLoadMainWindow(): Promise<void> {
 
 app.whenReady().then((): void => {
   createAndLoadMainWindow();
-
-  const autoLauncher = new AutoLaunch({
-    name: APP_TITLE,
-    path: app.getPath('exe'),
-    isHidden: true,
-  });
-
-  autoLauncher.isEnabled().then((isEnabled: boolean): void => {
-    if (!isEnabled) {
-      autoLauncher
-        .enable()
-        .then((): void => {
-          console.log('Auto-launch enabled successfully.');
-        })
-        .catch((err: Error): void => {
-          console.error('Failed to enable auto-launch:', err);
-        });
-    }
-  });
-
   app.on('activate', (): void => {
     if (BrowserWindow.getAllWindows().length === 0 && !waInstance) {
       createAndLoadMainWindow();
